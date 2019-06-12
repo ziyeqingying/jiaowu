@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>信息列表</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="http://cdn.bootcss.com/element-ui/1.2.5/theme-default/index.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/bootstrap-table/1.11.0/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/list.css">
+    <link href="css/bootstrap-datetimepicker.css" rel="stylesheet" media="screen">
+    <style>
+        [v-cloak] {display: none}
+    </style>
+</head>
+<body>
+    <a href="deletestudent.php">删除</a>
+    <div class="nav">教学工作量统计系统</div>
+    <div id='app' v-loading="listLoading" v-cloak>
+        <div id="aside">
+            <el-menu default-active="1" class="el-menu-vertical-demo">
+                <el-menu-item index="1"><i class="el-icon-menu"></i>学院教秘核对</el-menu-item>
+                <el-menu-item index="2"><i class="el-icon-menu"></i>学院领导审批</el-menu-item>
+                <el-menu-item><i class="el-icon-menu"></i>教务处汇总</el-menu-item>
+            </el-menu>
+        </div> 
+        <div id="container" class="container"> 
+            <div class="search">
+                <!-- <el-button type="primary" @click="addStudent">增加考生信息</el-button> -->
+                <el-input v-model="search.s_id" placeholder="关键字搜索"  :on-icon-click="searchSid"></el-input>
+                <el-button type="warning" @click="reset">搜索</el-button>
+                <el-dropdown @command="handleCommand" class='changeTimer'>
+                        <span class="el-dropdown-link" >
+                          {{currentTimer}}<i class="el-icon-arrow-down el-icon--right"></i>
+                        </span> 
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item  v-for="item in dateObject" :command="item" >{{item['semester']}}</el-dropdown-item>
+                          <!-- <el-dropdown-item :command="dateObject[0]" >2017-2018学年（第1学期）</el-dropdown-item>
+                          <el-dropdown-item :command="dateObject[1]" >2017-2018学年（第2学期）</el-dropdown-item> -->
+                        </el-dropdown-menu>
+                      </el-dropdown>
+                 <el-button type="warning" class="export" @click="showDialog">导出</el-button>
+                <!-- <el-input v-model="search.name" placeholder="输入考生姓名搜索" icon="search" :on-icon-click="searchName"></el-input> -->
+                
+            </div>
+            
+            <div class="tableData">
+                <div class="bootstrap-table">
+                    <div class="fixed-table-container mycontainer">
+                            <div class="fixed-table-body">
+                                    <table class="dataheader">
+                                        <tr>
+                                                <td style="width: 16%;">
+                                                    姓名 
+                                                </td>
+                                                <td  style="width: 16%;">
+                                                    <!-- 所属部门 -->
+                                                    <el-dropdown @command="handleDepart" class='changeDepart'>
+                                                        <span class="el-dropdown-link" >
+                                                            {{currentDepart}}
+                                                            <i class="el-icon-arrow-down el-icon--right"></i>
+                                                        </span>
+                                                        <el-dropdown-menu slot="dropdown">
+                                                          <el-dropdown-item :command="departList[0]" >{{departList[0]['value']}}</el-dropdown-item>
+                                                          <el-dropdown-item :command="departList[1]" >{{departList[1]['value']}}</el-dropdown-item>
+                                                        </el-dropdown-menu>
+                                                    </el-dropdown>
+                                                </td>
+                                                <td  style="width: 16%;">
+                                                    <!-- 性别 -->
+                                                    <!-- 所属部门 -->
+                                                    <el-dropdown @command="handleSex" class='changeSex'>
+                                                            <span class="el-dropdown-link" >
+                                                                {{currentSex}}
+                                                                <i class="el-icon-arrow-down el-icon--right"></i>
+                                                            </span>
+                                                            <el-dropdown-menu slot="dropdown">
+                                                              <el-dropdown-item :command="sexList[0]" >{{sexList[0]['value']}}</el-dropdown-item>
+                                                              <el-dropdown-item :command="sexList[1]" >{{sexList[1]['value']}}</el-dropdown-item>
+                                                            </el-dropdown-menu>
+                                                    </el-dropdown>
+                                                </td>
+                                                <td  style="width: 16%;">
+                                                    <!-- 职务 -->
+                                                    <el-dropdown @command="handleDuty" class='changeDuty'>
+                                                            <span class="el-dropdown-link" >
+                                                                {{currentDuty}}
+                                                                <i class="el-icon-arrow-down el-icon--right"></i>
+                                                            </span>
+                                                            <el-dropdown-menu slot="dropdown">
+                                                              <el-dropdown-item :command="dutyList[0]" >{{dutyList[0]['value']}}</el-dropdown-item>
+                                                              <el-dropdown-item :command="dutyList[1]" >{{dutyList[1]['value']}}</el-dropdown-item>
+                                                            </el-dropdown-menu>
+                                                    </el-dropdown>
+                                                </td>
+                                                <td  style="width: 16%;">工作量</td>
+                                                <td  style="width: 20%;">操作</td>
+                                        </tr>
+                                    </table>
+                            </div>
+                    </div>
+                    
+                </div>
+                
+                <table id="table"   data-show-header="false" style="border-top: 0px solid #eee;border-radius: 0px;">
+                   
+                </table>
+                
+            </div>
+        </div>
+        <div id="container" class="detailcontainer">
+                <div class="tableData">
+                        <table  class="table table-bordered">
+                                <tr>
+                                    <td class="title">
+                                        姓名：
+                                    </td>
+                                    <td id="examcode">
+                                        加载中...
+                                    </td>
+                                    <td class="title" >
+                                        所属部门：
+                                    </td>
+                                    <td id="username">
+                                        加载中...
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="title">
+                                        性别：
+                                    </td>
+                                    <td id="sex">
+                                        加载中...
+                                    </td>
+                                    <td class="title">
+                                        职务：
+                                    </td>
+                                    <td id="birth">
+                                        加载中...
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="title">
+                                        总工作量：
+                                    </td>
+                                    <td id="national">
+                                        加载中...
+                                    </td>
+                                    <td class="title">
+                                        教学工作量：
+                                    </td>
+                                    <td id="type">
+                                        加载中...
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="title">
+                                        建设工作量：
+                                    </td>
+                                    <td id="postcode">
+                                        加载中...
+                                    </td>
+                                    <td class="title"> 
+                                        联系电话：
+                                    </td>
+                                    <td id="mobile">
+                                        加载中...
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="title">
+                                        其它：
+                                    </td>
+                                    <td id="address">
+                                        加载中...
+                                    </td>
+                                    <td class="title">
+                                        其它：
+                                    </td>
+                                    <td id="moblieaddress">
+                                        加载中...
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="title">
+                                        其它
+                                    </td>
+                                    <td id="sendaddress" colspan="3">
+                                        加载中...
+                                    </td>
+                                    
+                                </tr>
+                            </table>
+                        <!-- <table id="table"></table> -->
+                    </div>
+        </div>
+        <!-- 弹出框 -->
+        <div id="modal-box">
+            <div class="modal fade modal-box">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5>选择导出表字段</h5>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal" role="form">
+                                <div class="form-group">
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项1</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <el-checkbox>选项2</el-checkbox>
+                                    </div>
+                                </div>
+                                
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            
+                            <button type="button" class="btn btn-primary save-btn" @click='save'>
+                                <span class="glyphicon glyphicon-saved">导出</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+</body>
+    <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/vue/2.2.4/vue.min.js"></script>
+    <script src="http://cdn.bootcss.com/element-ui/1.2.5/index.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap-table/1.11.0/bootstrap-table.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap-table/1.11.0/locale/bootstrap-table-zh-CN.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="js/list.js"></script>
+    
+    
+    <script>
+//         var today = new Date();
+//         $("#datetimepicker").datetimepicker({
+//             weekStart: 1,
+//             todayBtn:  1,
+//             autoclose: 1,
+//             minView: "month", //选择日期后，不会再跳转去选择时分秒 
+// 　　        format: "yyyy-mm-dd", //选择日期后，文本框显示的日期格式 
+// 　　        language: 'zh-CN', //汉化 
+// 　　        autoclose:true ,//选择日期后自动关闭 
+//         })
+        // $("#submitform").click(function(){
+        //  window.location.href = "userinfor.html";
+        // })
+        
+        $(".el-menu-vertical-demo").children().click(function() {
+            var index = $(".el-menu-vertical-demo").children().index(this);
+            if(index == 1) {
+                window.location.href = "leaderjudge.html";
+            } 
+            else if(index == 0) {
+                window.location.href = "list.html";
+            }
+            else if(index == 2) {
+                window.location.href = "totallist.html";
+            }
+        })
+    </script>
+</html>

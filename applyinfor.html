@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>信息列表</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="http://cdn.bootcss.com/element-ui/1.2.5/theme-default/index.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/bootstrap-table/1.11.0/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/list.css">
+    <link href="css/bootstrap-datetimepicker.css" rel="stylesheet" media="screen">
+    <style>
+        [v-cloak] {display: none}
+        .maincontainer{
+            margin-top:30px;
+        }
+        .form-group > div{
+            padding-bottom: 15px;
+        }
+        .list-group-item a{
+            color:white;
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <a href="deletestudent.php">删除</a>
+    <div class="nav">考生信息系统</div>
+    <div id='app' v-loading="listLoading" v-cloak>
+        <div id="aside">
+            <el-menu default-active="1" class="el-menu-vertical-demo">
+                <el-menu-item index="1"><i class="el-icon-menu"></i>填写报名信息</el-menu-item>
+                <el-menu-item index="2"><i class="el-icon-menu"></i>自定义</el-menu-item>
+            </el-menu>
+        </div>
+        <div id="container">
+            <div class="search">
+                <!-- <el-button type="primary" @click="addStudent">增加考生信息</el-button> -->
+                <!-- <el-input v-model="search.s_id" placeholder="输入考生号搜索" icon="search" :on-icon-click="searchSid"></el-input>
+                <el-input v-model="search.name" placeholder="输入考生姓名搜索" icon="search" :on-icon-click="searchName"></el-input>
+                <el-button type="warning" @click="reset">重 置</el-button> -->
+            </div>
+            <div class="tableData">
+                <form action="applyinfor.php" method="post">
+                            <div class="form-group">
+                                <div class="col-md-6">
+                                    <input type="text" name="examcode" class="form-control" id="examcode" placeholder="考生号">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" name="username" class="form-control" id="username" placeholder="姓名">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="sex" id="sex" placeholder="性别">
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-append date" id="datetimepicker" data-date="" data-date-format="dd-mm-yyyy">
+                                       <input class="form-control" size="16" type="text" name="birth" id="birth" placeholder="出生日期">
+                                       <span class="add-on"><i class="icon-th"></i></span>
+                                    </div>   
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-6">
+                                    <select class="form-control" name="national" id="national">
+                                        <option value="-1">民族</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <select class="form-control" id="type" name="type">
+                                        <option value="-1">考生类别</option>
+                                        <option value="0">农村应届</option>
+                                        <option value="1">农村往届</option>
+                                        <option value="2">城市应届</option>
+                                        <option value="3">城市往届</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="col-md-6">
+                                    <input type="text" name="postcode" class="form-control" id="postcode" placeholder="邮政编码">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="mobile" name="mobile" class="form-control" id="mobile" placeholder="联系电话">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" name="address" id="address" placeholder="籍贯">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" name="moblieaddress" id="moblieaddress" placeholder="通讯地址">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-12">
+                                    <textarea class="form-control" name="sendaddress" id="sendaddress" rows="3" placeholder="寄送通知书地址"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-12">
+                                    <button type="submit" id="submitform" class="btn btn-default" onclick="return check()">提交</button>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                    <button type="submit" class="btn btn-default">重置</button>
+                                </div>
+                            </div>
+                        </form>
+                <!-- <table id="table"></table> -->
+            </div>
+        </div>
+
+        <!-- 弹出框 -->
+        
+    </div>
+
+</body>
+    <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/vue/2.2.4/vue.min.js"></script>
+    <script src="http://cdn.bootcss.com/element-ui/1.2.5/index.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap-table/1.11.0/bootstrap-table.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap-table/1.11.0/locale/bootstrap-table-zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/list.js"></script>
+    <script type="text/javascript" src="js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+    
+    <script>
+        var today = new Date();
+        $("#datetimepicker").datetimepicker({
+            weekStart: 1,
+            todayBtn:  1,
+            autoclose: 1,
+            minView: "month", //选择日期后，不会再跳转去选择时分秒 
+　　        format: "yyyy-mm-dd", //选择日期后，文本框显示的日期格式 
+　　        language: 'zh-CN', //汉化 
+　　        autoclose:true ,//选择日期后自动关闭 
+        })
+        // $("#submitform").click(function(){
+        //  window.location.href = "userinfor.html";
+        // })
+    </script>
+    <script type="text/javascript">
+         var national = [
+            "汉族", "壮族", "满族", "回族", "苗族", "维吾尔族", "土家族", "彝族", "蒙古族", "藏族", "布依族", "侗族", "瑶族", "朝鲜族", "白族", "哈尼族",
+            "哈萨克族", "黎族", "傣族", "畲族", "傈僳族", "仡佬族", "东乡族", "高山族", "拉祜族", "水族", "佤族", "纳西族", "羌族", "土族", "仫佬族", "锡伯族",
+            "柯尔克孜族", "达斡尔族", "景颇族", "毛南族", "撒拉族", "布朗族", "塔吉克族", "阿昌族", "普米族", "鄂温克族", "怒族", "京族", "基诺族", "德昂族", "保安族",
+            "俄罗斯族", "裕固族", "乌孜别克族", "门巴族", "鄂伦春族", "独龙族", "塔塔尔族", "赫哲族", "珞巴族"
+        ];
+        var type = ["农村应届","农村往届","城市应届","城市往届"];
+        var nat = document.getElementById ("national");
+        for ( var i = 0; i < national.length; i++)
+        {
+            var option = document.createElement ('option');
+            option.value = i;
+            var txt = document.createTextNode (national[i]);
+            option.appendChild (txt);
+            nat.appendChild (option);
+        }
+    </script>
+    <script type="text/javascript">
+        function check(){
+            if(confirm("提交后不可修改，确认提交？")){
+                flag = 0;
+                $("input").each(function(){
+                    if($(this).val()==""){
+                        alert("信息填写不完整，请检查");
+                        flag = 1;
+                        return false;
+                    }
+                })
+                if(flag == 1){
+                    return false;
+                }
+                $("textarea").each(function(){
+                    if($(this).val()==""){
+                        alert("信息填写不完整，请检查");
+                        flag = 1;
+                        return false;
+                    }
+                })
+                if(flag == 1){
+                    return false;
+                }
+                $("select").each(function(){
+                    if($(this).val()=="-1"){
+                        alert("信息填写不完整，请检查");
+                        flag = 1;
+                        return false;
+                    }
+                })
+                if(flag == 1){
+                    return false;
+                }
+                var userinfor = {
+                    "examcode":$("#examcode").val(),
+                    "username":$("#username").val(),
+                    "sex":$("#sex").val(),
+                    "birth":$("#birth").val(),
+                    "national":national[$("#national").val()],
+                    "type":type[$("#type").val()],
+                    "postcode":$("#postcode").val(),
+                    "mobile":$("#mobile").val(),
+                    "address":$("#address").val(),
+                    "moblieaddress":$("#moblieaddress").val(),
+                    "sendaddress":$("#sendaddress").val()
+                }
+                localStorage["userinfor"] = JSON.stringify(userinfor);
+            }
+            // if($("input").val() == "" || $("textarea").val() == "" || $("select").val() == "-1"){
+            //  alert("信息填写不完整，请检查");
+            //  return false;
+            // }
+        }
+    </script>
+</html>

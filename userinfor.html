@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>信息列表</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="http://cdn.bootcss.com/element-ui/1.2.5/theme-default/index.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/bootstrap-table/1.11.0/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/list.css">
+    <link rel="stylesheet" type="text/css" href="css/infor.css" >
+    <link href="css/bootstrap-datetimepicker.css" rel="stylesheet" media="screen">
+    <style>
+        [v-cloak] {display: none}
+        .maincontainer{
+            margin-top:30px;
+        }
+        .form-group > div{
+            padding-bottom: 15px;
+        }
+        .list-group-item a{
+            color:white;
+        }
+        .changed input{
+            border: 1px solid red;
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <div class="nav">教学工作量统计系统</div>
+    <div id='app' v-cloak>
+        <div id="aside">
+            <el-menu default-active="1" class="el-menu-vertical-demo">
+                <el-menu-item index="1"><i class="el-icon-menu"></i>学院教秘核对</el-menu-item>
+                <el-menu-item index="2"><i class="el-icon-menu"></i>学院领导审批</el-menu-item>
+                <el-menu-item><i class="el-icon-menu"></i>教务处汇总</el-menu-item>
+            </el-menu>
+        </div>
+        <div id="container">
+            <div class="search">
+                <!-- <el-button type="primary" @click="addStudent">增加考生信息</el-button> -->
+                <!-- <el-input v-model="search.s_id" placeholder="输入考生号搜索" icon="search" :on-icon-click="searchSid"></el-input>
+                <el-input v-model="search.name" placeholder="输入考生姓名搜索" icon="search" :on-icon-click="searchName"></el-input>
+                <el-button type="warning" @click="reset">重 置</el-button> -->
+            </div>
+            <div class="title">课堂教学工作量</div>
+            <div class="tableData" style="width: 74%;">
+
+                <table  v-for="item in detailData.lessonList"  class="table table-bordered">
+                        <tr>
+                            <td class="title">
+                                课程名称：
+                            </td>
+                            <td id="lessonName">
+                                <el-input placeholder="请输入姓名" v-model="item.lessonName"   @change.native="handlerChange($event)"></el-input>
+                            </td>
+                            <td class="title" >
+                                课程类别：
+                            </td>
+                            <td id="">
+                                <el-select  v-model="item.lessontype"  placeholder="请选择">
+                                    <el-option
+                                      v-for="item in lessontypeArr"
+                                      :key="item.value"
+                                      :label="item.label"
+                                      :value="item.value">
+                                    </el-option>
+                               </el-select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="title">
+                                班级人数：
+                            </td>
+                            <td>
+                                <el-input placeholder="输入班级人数" v-model="item.stuNum" @change.native="handlerChange($event)"></el-input>
+                            </td>
+                            <td class="title">
+                                课程时数：
+                            </td>
+                            <td id="birth">
+                                <el-input placeholder="输入课时数" v-model="item.lessonNum" @change.native="handlerChange($event)"></el-input>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="title">
+                                教师职称：
+                            </td>
+                            <td id="national">
+                                <el-select  v-model="item.pression"  placeholder="请选择">
+                                    <el-option
+                                        v-for="item in pressionArray"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </td>
+                            <td class="title">
+                                是否评优：
+                            </td>
+                            <td id="type">
+                                <el-select  v-model="item.isexcellent"  placeholder="请选择">
+                                    <el-option
+                                        v-for="item in isexcellentArray"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </td>
+                        </tr>
+                    </table>
+                <!-- <table id="table"></table> -->
+            </div>
+            <div class="title">课堂指导工作量</div>
+            <div class="tableData" style="width: 74%;">
+
+                    <table   class="table table-bordered">
+                            <tr>
+                                <td class="title">
+                                    实习类别：
+                                </td>
+                                <td id="">
+                                        <el-select  v-model="detailData.practiceType"  placeholder="请选择">
+                                                <el-option
+                                                  v-for="item in practiceArray"
+                                                  :key="item.value"
+                                                  :label="item.label"
+                                                  :value="item.value">
+                                                </el-option>
+                                        </el-select>
+                                </td>
+                                <td class="title" >
+                                    实习人数：
+                                </td>
+                                <td id="username">
+                                    <el-input placeholder="请输入实习人数" v-model="detailData.practiceNum" @change.native="handlerChange($event)"></el-input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="title">
+                                    实习天数
+                                </td>
+                                <td id="username">
+                                    <el-input placeholder="请输入实习天数" v-model="detailData.practiceDayCount" @change.native="handlerChange($event)"></el-input>
+                                </td>
+                                <td class="title">
+                                    实习组数：
+                                </td>
+                                <td id="birth">
+                                    <el-input placeholder="请输入实习组数" v-model="detailData.practiceGroupCount" @change.native="handlerChange($event)"></el-input>
+                                </td>
+                            </tr>
+                        </table>
+                    <!-- <table id="table"></table> -->
+            </div>
+            <div class="tableData" style="width: 74%;">
+
+                    <table   class="table table-bordered">
+                            <tr>
+                                <td class="title">
+                                    实训类别：
+                                </td>
+                                <td id="">
+                                        <el-select  v-model="detailData.trainType"   placeholder="请选择">
+                                                <el-option
+                                                  v-for="item in trainArray"
+                                                  :key="item.value"
+                                                  :label="item.label"
+                                                  :value="item.value">
+                                                </el-option>
+                                        </el-select>
+                                </td>
+                                <td class="title" >
+                                    实训周数：
+                                </td>
+                                <td id="username">
+                                    <el-input placeholder="请输入实训周数" v-model="detailData.trainWeeksCount" @change.native="handlerChange($event)"></el-input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="title">
+                                    实训人数：
+                                </td>
+                                <td id="username">
+                                    <el-input placeholder="请输入实训人数" v-model="detailData.trainStuNum"  @change.native="handlerChange($event)"></el-input>
+                                </td>
+                                <td class="title">
+                                    巡回实习人数：
+                                </td>
+                                <td id="birth">
+                                    <el-input placeholder="巡回实习人数" v-model="detailData.roundStuCount"  @change.native="handlerChange($event)"></el-input>
+                                </td>
+                            </tr>
+                        </table>
+                    <!-- <table id="table"></table> -->
+            </div>
+            <div class="tableData" style="width: 74%;">
+
+                    <table   class="table table-bordered">
+                            <tr>
+                                <td class="title">
+                                    巡回实习人数：
+                                </td>
+                                <td id="">
+                                    <el-input placeholder="巡回实习人数" v-model="detailData.roundStuCount" @change.native="handlerChange($event)"></el-input>
+                                </td>
+                                
+                            </tr>
+                        </table>
+                    <!-- <table id="table"></table> -->
+            </div>
+            <div class="title">教学建设工作量</div>
+            <div class="tableData" style="width: 74%;">
+
+                    <table   class="table table-bordered">
+                            <tr>
+                                <td class="title">
+                                    指导本科生数量：
+                                </td>
+                                <td id="">
+                                    <el-input placeholder="指导本科生数量" v-model="detailData.instructCollegeCount" @change.native="handlerChange($event)"></el-input>
+                                </td>
+                                <td class="title">
+                                    指导新教师数量：
+                                </td>
+                                <td id="">
+                                    <el-input placeholder="指导新教师数量" v-model="detailData.instructNewTeaCount" @change.native="handlerChange($event)"></el-input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="title">
+                                    本科毕业答辩学生数：
+                                </td>
+                                <td id="">
+                                    <el-input placeholder="本科毕业答辩学生数" v-model="detailData.collegeAnswerCount" @change.native="handlerChange($event)"></el-input>
+                                </td>
+                                <td class="title">
+                                    考试课程数量：
+                                </td>
+                                <td id="">
+                                    <el-input placeholder="考试课程数量" v-model="detailData.examCount" @change.native="handlerChange($event)"></el-input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="title">
+                                    教学督导：
+                                </td>
+                                <td id="">
+                                    <el-input placeholder="教学督导" v-model="detailData.instructCount" @change.native="handlerChange($event)"></el-input>
+                                </td>
+                                <td class="title">
+                                    教研室活动数量：
+                                </td>
+                                <td id="">
+                                    <el-input placeholder="教研室活动数量" v-model="detailData.activityCount" @change.native="handlerChange($event)"></el-input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="title">
+                                    实验室建设：
+                                </td>
+                                <td id="">
+                                    <el-input placeholder="实验室建设" v-model="detailData.labConstruct"  @change.native="handlerChange($event)"></el-input>
+                                </td>
+                                <td class="title">
+                                    教学文档：
+                                </td>
+                                <td id="">
+                                    <el-input placeholder="教学文档" v-model="detailData.docCount"  @change.native="handlerChange($event)"></el-input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="title">
+                                    实验室建设：
+                                </td>
+                                <td id="">
+                                    <el-input placeholder="实验室建设" v-model="detailData.labConstruct" @change.native="handlerChange($event)"></el-input>
+                                </td>
+                                <td class="title">
+                                    教学文档：
+                                </td>
+                                <td id="">
+                                    <el-input placeholder="教学文档" v-model="detailData.docCount"  @change.native="handlerChange($event)"></el-input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="title">
+                                    教学管理：
+                                </td>
+                                <td id="">
+                                        <el-select  v-model="detailData.teachManager"  placeholder="请选择">
+                                                <el-option
+                                                  v-for="item in dutyList"
+                                                  :key="item.value"
+                                                  :label="item.label"
+                                                  :value="item.value">
+                                                </el-option>
+                                        </el-select>
+                                </td>
+                                
+                            </tr>
+                        </table>
+                    <!-- <table id="table"></table> -->
+            </div>
+            <div class="tableData" style="width: 74%;margin-bottom: 20px;text-align: center;">
+                <el-button type="primary" style="width: 20%;" @click="saveData()">保存</el-button>
+                <el-button type="primary" style="width: 20%;">取消</el-button>
+            </div>
+        </div>
+
+        <!-- 弹出框 -->
+        
+    </div>
+
+</body>
+    <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/vue/2.2.4/vue.min.js"></script>
+    <script src="http://cdn.bootcss.com/element-ui/1.2.5/index.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap-table/1.11.0/bootstrap-table.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap-table/1.11.0/locale/bootstrap-table-zh-CN.min.js"></script>
+    <!-- <script type="text/javascript" src="js/list.js"></script> -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+//         var today = new Date();
+//         $("#datetimepicker").datetimepicker({
+//             weekStart: 1,
+//             todayBtn:  1,
+//             autoclose: 1,
+//             minView: "month", //选择日期后，不会再跳转去选择时分秒 
+// 　　        format: "yyyy-mm-dd", //选择日期后，文本框显示的日期格式 
+// 　　        language: 'zh-CN', //汉化 
+// 　　        autoclose:true ,//选择日期后自动关闭 
+//         })
+        // $("#submitform").click(function(){
+        //  window.location.href = "userinfor.html";
+        // })
+    </script>
+    <script>
+        $(".el-menu-vertical-demo").children().click(function() {
+            var index = $(".el-menu-vertical-demo").children().index(this);
+            if(index == 1) {
+                window.location.href = "leaderjudge.html";
+            } 
+            else if(index == 0) {
+                window.location.href = "list.html";
+            }
+            else if(index == 2) {
+                window.location.href = "totallist.html";
+            }
+        })
+    </script>
+    <script>
+        Vue.prototype.$http = axios;
+        new Vue({
+            el: "#app",
+            data() {
+                return  {
+
+                    detailData: {
+                        sexvalue: '',
+                        departvalue: '',
+                        // lessontype: "",
+                        // pression: "",
+                        // isexcellent: "",
+                        practiceType: "",
+                        practiceNum: 0,
+                        practiceDayCount: 0,
+                        practiceGroupCount: 0,
+                        trainType: "",
+                        trainWeeksCount: 0,
+                        trainStuNum: 0,
+                        roundStuCount: 0,
+                        instructThesisnCount: 0,
+                        instructDesignCount: 0,
+                        instructYThesisnCount: 0,    
+                        subjectCount: 0,
+                        ownSubjectCount: 0,
+                        boYaCount: 0,
+                        changeInput: 0,
+                        competitionCount: 0,
+                        ownCompetitionCount: 0,
+                        sportsCompetitionCount: 0,
+                        countryCompetitionCount: 0,
+                        provinceCompetitionCount: 0,
+                        instructCollegeCount: 0,
+                        instructNewTeaCount: 0,
+                        collegeAnswerCount: 0,
+                        examCount: 0,
+                        instructCount: 0,
+                        activityCount: 0,
+                        labConstruct: 0,
+                        docCount: 0,
+                        teachManager: '',
+                        lessonList: [
+                            {  
+                                lessontype: "",
+                                lessonName: "高等数学", 
+                                lessontypeArr: [{
+                                    value: '0',
+                                    label: '普通专业课程'
+                                    },{
+                                        value: '1',
+                                        label: '外语专业课程'
+                                    },{
+                                        value: '2',
+                                        label: '通识选修、综合素质类课程'
+                                    },{
+                                        value: '3',
+                                        label: '计算机上机实验课程'
+                                    },{
+                                        value: '4',
+                                        label: '普通实验课程'
+                                    },{
+                                        value: '5',
+                                        label: '体育术课'
+                                    },{
+                                        value: '6',
+                                        label: '美术术课'
+                                    },{
+                                        value: '7',
+                                        label: '音乐术课'
+                                    }          
+                                ], 
+                                stuNum: "30", 
+                                lessonNum: "20", 
+                                pression: "",
+                                isexcellent: "",
+                                pressionArray:  [{
+                                        value: '0',
+                                        label: '教授'
+                                    },{
+                                        value: '1',
+                                        label: '副教授'
+                                    },{
+                                        value: '2',
+                                        label: '讲师'
+                                    }    
+                                ], 
+                                "isexcellentArray": [{
+                                        value: '0',
+                                        label: '是'
+                                    },{
+                                        value: '1',
+                                        label: '否'
+                                    }   
+                                ]
+                            },
+                            {  
+                            lessonName: "高等数学", 
+                            lessontype: [{
+                                value: '0',
+                                label: '普通专业课程'
+                                },{
+                                    value: '1',
+                                    label: '外语专业课程'
+                                },{
+                                    value: '2',
+                                    label: '通识选修、综合素质类课程'
+                                },{
+                                    value: '3',
+                                    label: '计算机上机实验课程'
+                                },{
+                                    value: '4',
+                                    label: '普通实验课程'
+                                },{
+                                    value: '5',
+                                    label: '体育术课'
+                                },{
+                                    value: '6',
+                                    label: '美术术课'
+                                },{
+                                    value: '7',
+                                    label: '音乐术课'
+                                }          
+                            ], 
+                            stuNum: "30", 
+                            lessonNum: "20", 
+                            pression:  [{
+                                    value: '0',
+                                    label: '教授'
+                                },{
+                                    value: '1',
+                                    label: '副教授'
+                                },{
+                                    value: '2',
+                                    label: '讲师'
+                                }    
+                            ], 
+                            "isexcellent": [{
+                                    value: '0',
+                                    label: '是'
+                                },{
+                                    value: '1',
+                                    label: '否'
+                                }   
+                            ]
+                        }
+                        ]
+                    },
+
+                    options: [{
+                        value: '0',
+                        label: '男'
+                        },{
+                            value: '1',
+                            label: '女'
+                        }
+                    ],
+                    
+                    departoptions: [{
+                        value: '0',
+                        label: '财务处'
+                        },{
+                            value: '0',
+                            label: '财务处'
+                        }  
+                    ],
+                    
+                    
+                    
+                    
+                    practiceArray: [{
+                            value: '0',
+                            label: '集  中'
+                        },{
+                            value: '1',
+                            label: '分  散'
+                        },{
+                            value: '2',
+                            label: '讲授类野外实习'
+                        }
+                    ],
+                    
+                    trainArray: [{
+                            value: '0',
+                            label: '校  内'
+                        },{
+                            value: '1',
+                            label: '校外驻点'
+                        },{
+                            value: '2',
+                            label: '校外分散'
+                        }
+                    ],
+                    dutyList: [{
+                            value: '0',
+                            label: '处长'
+                        },{
+                            value: '1',
+                            label: '科长'
+                        },{
+                            value: '2',
+                            label: '副校长'
+                        }
+                    ],
+                    lessontypeArr: [{
+                            value: '0',
+                            label: '普通专业课程'
+                        },{
+                            value: '1',
+                            label: '外语专业课程'
+                        },{
+                            value: '2',
+                            label: '通识选修、综合素质类课程'
+                        },{
+                            value: '3',
+                            label: '计算机上机实验课程'
+                        },{
+                            value: '4',
+                            label: '普通实验课程'
+                        },{
+                            value: '5',
+                            label: '体育术课'
+                        },{
+                            value: '6',
+                            label: '美术术课'
+                        },{
+                            value: '7',
+                            label: '音乐术课'
+                        }          
+                    ],
+                    pressionArray:  [{
+                            value: '0',
+                            label: '教授'
+                        },{
+                            value: '1',
+                            label: '副教授'
+                        },{
+                            value: '2',
+                            label: '讲师'
+                        }    
+                    ],
+                    "isexcellentArray": [{
+                            value: '0',
+                            label: '是'
+                        },{
+                            value: '1',
+                            label: '否'
+                        }   
+                    ]
+                }
+            },
+            methods: {
+                GetRequest() {
+                    var url = window.location.search; //获取url中"?"符后的字串
+                    var theRequest = new Object();
+                    if (url.indexOf("?") != -1) {
+                        var str = url.substr(1);
+                        strs = str.split("&");
+                        for(var i = 0; i < strs.length; i ++) {
+                            theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+                        }
+                    }
+                    return theRequest;
+                },
+                handlerChange(e) {
+                    var target = e.target;
+                    $(target).parent().addClass("changed");
+                    //$("#" + inputId + " div").addClass("changed");
+                },
+                saveData: function() {
+                    var uid = this.GetRequest();
+                    var token = localStorage["token"];
+                    console.log(token);
+                    console.log(typeof JSON.stringify(this.detailData));
+
+                    // $.ajax({
+                    //     url: 'https://jiaowu.d5h5.com/api/working-stats?api_token=' + token,
+                    //     data: {teaching: JSON.stringify(this.detailData)},
+                    //     type: "put",
+                    //     success: function(data) {
+                    //         console.log(data);
+                    //     },
+                    //     contentType: "text/plain"
+                    // })
+ 
+                    this.$http({
+                        url: 'https://jiaowu.d5h5.com/api/working-stats?api_token=' + token,
+                        method: 'put',
+                        data: {teaching: JSON.stringify(this.detailData)},
+                        headers: { 'content-type': 'text/plain' }
+                    }).then(function(res) {
+                        console.log(res);
+                    })
+                }
+            },
+            mounted() {
+                var uid = this.GetRequest();
+                var token = localStorage["token"];
+                this.$http.get("https://jiaowu.d5h5.com/api/working-stats", {params: {api_token: token, uid: uid.uid, semester_id: "2019-1"}}).then((res) => {
+                    var techContent = res.data.data.teaching;
+                    console.log(techContent);
+                    
+                    var tech = JSON.parse(JSON.parse(techContent));
+                    this.detailData = tech;
+                    // var obj = {"username": "zhangsan"};
+                    // console.log(JSON.stringify(obj));
+                    
+                    // var techObject = JSON.parse(techContent.replace("", ""));
+                    // console.log(techObject);
+                    // this.detailData = techObject;
+                    // console.log(this.detailData);
+                    // console.log(this.detailData);
+                    // console.log(techObject);
+                })
+            }
+        }
+    );    
+    </script>
+</html>
